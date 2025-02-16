@@ -1,6 +1,6 @@
 import Navbar from "./Navbar";
 import { albumsData, songsData } from "../assets/frontend-assets/assets";
-import AlbumItem from "./Albumitem";
+import AlbumItem from "./AlbumItem";
 import SongItem from "./SongItem";
 
 const DisplayHome = () => {
