@@ -1,0 +1,15 @@
+import express from "express";
+import {
+    addAlbum,
+    listAlbum,
+    removeAlbum,
+} from "../controllers/albumControllers";
+import upload from "../middleware/multer";
+
+const albumRouter = express.Router();
+
+albumRouter.post("/add", upload.single("image"), addAlbum);
+albumRouter.get("/list", listAlbum);
+albumRouter.delete("/remove/:id", removeAlbum);
+
+export default albumRouter;
