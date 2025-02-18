@@ -1,4 +1,4 @@
-import { songsData } from "../assets/frontend-assets/assets";
+import { songsData } from "../assets/assets";
 
 export type PlayerContextType = {
     audioRef: React.RefObject<HTMLAudioElement>;

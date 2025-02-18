@@ -4,7 +4,7 @@ import {
     albumsData,
     assets,
     songsData,
-} from "../assets/frontend-assets/assets";
+} from "../assets/assets";
 import { useContext } from "react";
 import { PlayerContext } from "../context/PlayerContext";
 
