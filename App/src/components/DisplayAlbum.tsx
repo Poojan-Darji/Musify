@@ -1,19 +1,25 @@
 import { useParams } from "react-router-dom";
 import Navbar from "./Navbar";
-import {
-    albumsData,
-    assets,
-    songsData,
-} from "../assets/assets";
-import { useContext } from "react";
+import { assets } from "../assets/assets";
+import { useContext, useEffect, useState } from "react";
 import { PlayerContext } from "../context/PlayerContext";
+import { IAlbum } from "../types/types";
 
-const DisplayAlbum = () => {
+const DisplayAlbum = ({ album }: { album: IAlbum | undefined }) => {
     const { id } = useParams<{ id: string }>();
-    const albumData = albumsData.find((item) => item.id === Number(id));
-    const { playWithId } = useContext(PlayerContext);
 
-    return (
+    const { playWithId, albumsData, songsData } = useContext(PlayerContext);
+    const [albumData, setAlbumData] = useState<IAlbum>();
+
+    useEffect(() => {
+        albumsData.map((item) => {
+            if (item._id === id) {
+                setAlbumData(item);
+            }
+        });
+    });
+
+    return albumData ? (
         <>
             <Navbar />
             <div className="mt-10 flex gap-8 flex-col md:flex-row md:items-end">
@@ -44,28 +50,34 @@ const DisplayAlbum = () => {
                 <img className="m-auto w-4" src={assets.clock_icon} alt="" />
             </div>
             <hr />
-            {songsData.map((item, idx) => (
-                <div
-                    onClick={() => playWithId(item.id)}
-                    key={idx}
-                    className="grid grid-cols-3 sm:grid-cols-4 gap-2 p-2 items-center text-[#a7a7a7] hover:bg-[#ffffff26] cursor-pointer"
-                >
-                    <p className="text-white">
-                        <b className="mr-4 text-[#a7a7a7]">{idx + 1}</b>
-                        <img
-                            className="inline w-10 mr-5"
-                            src={item.image}
-                            alt=""
-                        />
-                        {item.name}
-                    </p>
-                    <p className="text-[15px]">{albumData?.name}</p>
-                    <p className="text-[15px] hidden sm:block">5 days ago</p>
-                    <p className="text-[15px] text-center">{item.duration}</p>
-                </div>
-            ))}
+            {songsData
+                .filter((item) => item.album === album?.name)
+                .map((item, idx) => (
+                    <div
+                        onClick={() => playWithId(item._id)}
+                        key={idx}
+                        className="grid grid-cols-3 sm:grid-cols-4 gap-2 p-2 items-center text-[#a7a7a7] hover:bg-[#ffffff26] cursor-pointer"
+                    >
+                        <p className="text-white">
+                            <b className="mr-4 text-[#a7a7a7]">{idx + 1}</b>
+                            <img
+                                className="inline w-10 mr-5"
+                                src={item.image}
+                                alt=""
+                            />
+                            {item.name}
+                        </p>
+                        <p className="text-[15px]">{albumData?.name}</p>
+                        <p className="text-[15px] hidden sm:block">
+                            5 days ago
+                        </p>
+                        <p className="text-[15px] text-center">
+                            {item.duration}
+                        </p>
+                    </div>
+                ))}
         </>
-    );
+    ) : null;
 };
 
 export default DisplayAlbum;

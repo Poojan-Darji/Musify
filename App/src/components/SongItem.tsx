@@ -5,7 +5,7 @@ interface SongItemProps {
     name: string;
     image: string;
     desc: string;
-    id: number;
+    id: string;
 }
 
 const SongItem = ({ name, image, desc, id }: SongItemProps) => {

@@ -4,7 +4,7 @@ interface AlbumItemProps {
     name: string;
     image: string;
     desc: string;
-    id: number;
+    id: string;
 }
 
 const AlbumItem = ({ image, name, desc, id }: AlbumItemProps) => {

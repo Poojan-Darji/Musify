@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
-import { songsData } from "../assets/assets";
-import { TimeType } from "../types";
+import { IAlbum, ISong, TimeType } from "../types/types";
 import { PlayerContext } from "./PlayerContext";
+import axios from "axios";
 
 const PlayerContextProvider: React.FC<{ children: React.ReactNode }> = (
     props
@@ -10,7 +10,12 @@ const PlayerContextProvider: React.FC<{ children: React.ReactNode }> = (
     const seekBg = useRef<HTMLDivElement>(null!);
     const seekBar = useRef<HTMLHRElement>(null!);
 
-    const [track, setTrack] = useState(songsData[0]);
+    const url = import.meta.env.VITE_BACKEND_URL;
+
+    const [songsData, setSongsData] = useState<ISong[]>([]);
+    const [albumsData, setAlbumsData] = useState<IAlbum[]>([]);
+
+    const [track, setTrack] = useState<ISong>();
     const [playStatus, setPlayStatus] = useState(false);
     const [time, setTime] = useState<TimeType>({
         currentTime: {
@@ -22,6 +27,27 @@ const PlayerContextProvider: React.FC<{ children: React.ReactNode }> = (
             minute: 0,
         },
     });
+
+    const getSongsData = async () => {
+        try {
+            const response = await axios.get(`${url}/api/song/list`);
+            if (!response.data.success) throw new Error("something went wrong");
+            setSongsData(response.data.songs);
+            setTrack(response.data.songs[0]);
+        } catch (error) {
+            console.log("An unknown error occured");
+        }
+    };
+
+    const getAlbumData = async () => {
+        try {
+            const response = await axios.get(`${url}/api/album/list`);
+            if (!response.data.success) throw new Error("something went wrong");
+            setAlbumsData(response.data.albums);
+        } catch (error) {
+            console.log("An unknown error occured");
+        }
+    };
 
     const play = () => {
         if (audioRef.current) {
@@ -37,26 +63,35 @@ const PlayerContextProvider: React.FC<{ children: React.ReactNode }> = (
         }
     };
 
-    const playWithId = async (id: number) => {
-        await setTrack(songsData[id]);
+    const playWithId = async (id: string) => {
+        await songsData.map((item) => {
+            if (item._id === id) {
+                setTrack(item);
+            }
+        });
+
         await audioRef.current.play();
         setPlayStatus(true);
     };
 
     const previous = async () => {
-        if (track.id > 0) {
-            await setTrack(songsData[track.id - 1]);
-            await audioRef.current.play();
-            setPlayStatus(true);
-        }
+        songsData.map(async (item, idx) => {
+            if (track?._id === item._id && idx > 0) {
+                await setTrack(songsData[idx - 1]);
+                await audioRef.current.play();
+                setPlayStatus(true);
+            }
+        });
     };
 
     const next = async () => {
-        if (track.id < songsData.length - 1) {
-            await setTrack(songsData[track.id + 1]);
-            await audioRef.current.play();
-            setPlayStatus(true);
-        }
+        songsData.map(async (item, idx) => {
+            if (track?._id === item._id && idx < songsData.length) {
+                await setTrack(songsData[idx + 1]);
+                await audioRef.current.play();
+                setPlayStatus(true);
+            }
+        });
     };
 
     const seekSong = (e: React.MouseEvent<HTMLDivElement>) => {
@@ -88,6 +123,11 @@ const PlayerContextProvider: React.FC<{ children: React.ReactNode }> = (
         }, 1000);
     }, [audioRef]);
 
+    useEffect(() => {
+        getSongsData();
+        getAlbumData();
+    }, []);
+
     const contextValue = {
         audioRef,
         seekBg,
@@ -104,6 +144,8 @@ const PlayerContextProvider: React.FC<{ children: React.ReactNode }> = (
         previous,
         next,
         seekSong,
+        songsData,
+        albumsData,
     };
 
     return (

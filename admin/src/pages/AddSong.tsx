@@ -16,11 +16,6 @@ const AddSong = () => {
     const [albumData, setAlbumData] = useState<IAlbum[]>([]);
 
     const onSubmitHandler = async (e: React.FormEvent) => {
-        console.log("onSubmitHandler is called");
-        console.log(import.meta.env);
-
-        console.log("url : ", url);
-
         e.preventDefault();
         setLoading(true);
 
@@ -29,8 +24,6 @@ const AddSong = () => {
             formData.append("name", name);
             formData.append("desc", desc);
             formData.append("album", album);
-
-            console.log(formData);
 
             if (song) formData.append("audio", song);
             if (image) formData.append("image", image);
